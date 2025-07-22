@@ -1,0 +1,109 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+
+{% block title %}Manage Classes - Tailwebs{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="sidebar">
+        <div class="logo-sidebar">
+            tailwebs.
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{% url 'classes' %}" class="active"><i class="fas fa-chalkboard"></i> Classes</a></li>
+                <li><a href="{% url 'subjects' %}"><i class="fas fa-book-open"></i> Subjects</a></li>
+                <li><a href="{% url 'exam' %}"><i class="fas fa-graduation-cap"></i> Exam</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="navbar">
+            <div class="welcome-text">Welcome, {{ request.user.username }}</div>
+            <nav class="top-nav">
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content-area">
+            <div class="card class-management-section">
+                <div class="card-header-with-button">
+                    <h3>Manage Classes</h3>
+                    <div class="add-button-container">
+                        <button class="add-button" onclick="openClassModal('add')">Add New Class</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr.no</th> {# Added Sr.no column #}
+                            <th>Class Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classTable">
+                        <!-- Classes will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+
+                {# Pagination Controls #}
+                <div class="pagination-controls">
+                    <button id="prevPage" onclick="goToClassPage(currentPageClass - 1)" disabled>Previous</button>
+                    <span id="pageInfoClass">Page 1 of 1</span>
+                    <button id="nextPage" onclick="goToClassPage(currentPageClass + 1)" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Add/Edit Class -->
+<div id="classModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeClassModal()">&times;</span>
+        <h3 id="classModalTitle">Add New Class</h3>
+        <form id="classForm">
+            {% csrf_token %}
+            <input type="hidden" id="classId">
+            <div class="input-group">
+                <i class="fas fa-chalkboard"></i>
+                <input type="text" id="className" placeholder="Class Name (e.g., 10th Grade)" required>
+            </div>
+            <button type="submit" id="classSubmitButton" class="modal-submit-button">Add Class</button>
+        </form>
+    </div>
+</div>
+
+<!-- Generic Confirmation Modal (needed on this page too) -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmModal()">&times;</span>
+        <h3 id="confirmModalMessage"></h3>
+        <div class="confirm-buttons">
+            <button class="modal-submit-button" onclick="handleConfirmYes()">Yes</button>
+            <button class="modal-cancel-button" onclick="closeConfirmModal()">No</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Immediately hide modals when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('classModal').style.display = 'none';
+        document.getElementById('confirmModal').style.display = 'none';
+    });
+</script>
+{# Load the specific JS for Class management #}
+<script src="{% static 'js/classes.js' %}"></script>
+{# Load general utility JS which includes confirm modal functions #}
+<script src="{% static 'js/utility.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+
+{% block title %}Exam Marks - Tailwebs{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="sidebar">
+        <div class="logo-sidebar">
+            tailwebs.
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{% url 'classes' %}"><i class="fas fa-chalkboard"></i> Classes</a></li>
+                <li><a href="{% url 'subjects' %}"><i class="fas fa-book-open"></i> Subjects</a></li>
+                <li><a href="{% url 'exam' %}" class="active"><i class="fas fa-graduation-cap"></i> Exam</a></li> {# This page is now 'Exam' #}
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="navbar">
+            <div class="welcome-text">Welcome, {{ request.user.username }}</div>
+            <nav class="top-nav">
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content-area">
+            {# Consolidated Student Data Section #}
+            <div id="studentDataSection" class="card student-exam-section">
+                {# New container for heading and button #}
+                <div class="card-header-with-button">
+                    <h3>Student Exam Marks</h3>
+                    <div class="add-button-container"> {# No inline style needed here, CSS will handle it #}
+                        <button class="add-button" onclick="openStudentModal('add')">Add Student Marks</button>
+                    </div>
+                </div>
+
+                {# Filters within the same card #}
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="classFilter">Filter by Class:</label>
+                        <select id="classFilter" class="select-dropdown" onchange="filterStudents()">
+                            <option value="">Select Class</option>
+                            <!-- Classes will be populated here by JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="subjectFilter">Filter by Subject:</label>
+                        <select id="subjectFilter" class="select-dropdown" onchange="filterStudents()">
+                            <option value="">Select Subject</option>
+                            <!-- Subjects will be populated here by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+
+                {# Message when filters are not selected #}
+                <div id="filterMessage" class="info-message" style="text-align: center; margin-top: 20px;">
+                    Please select both a Class and a Subject to view student data.
+                </div>
+
+                {# Student Table - initially hidden, shown by JS #}
+                <div id="studentTableContainer" style="display: none;"> {# This container will only hold the table and pagination #}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sr.no</th>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Mark</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTable">
+                            <!-- Student data will be loaded here by JavaScript -->
+                        </tbody>
+                    </table>
+
+                    {# Pagination Controls #}
+                    <div class="pagination-controls">
+                        <button id="prevPage" onclick="goToPage(currentPage - 1)" disabled>Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button id="nextPage" onclick="goToPage(currentPage + 1)" disabled>Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Add/Edit Student Marks -->
+<div id="studentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeStudentModal()">&times;</span>
+        <h3 id="studentModalTitle">Add New Student Marks</h3>
+        <form id="studentForm">
+            {% csrf_token %}
+            <input type="hidden" id="studentId">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="studentName" placeholder="Student Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-chalkboard"></i>
+                <select id="studentClass" class="select-dropdown" required style="width: 100%;"> 
+                    <option value="">Select Class</option>
+                    <!-- Classes will be populated here by JavaScript -->
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-book"></i>
+                <select id="studentSubject" class="select-dropdown" required style="width: 100%;"> 
+                    <option value="">Select Subject</option>
+                    <!-- Subjects will be populated here by JavaScript -->
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-percent"></i>
+                <input type="number" id="studentMarks" placeholder="Mark (0-100)" required min="0" max="100" step="0.01"> {# Added step="0.01" #}
+            </div>
+            <button type="submit" id="studentSubmitButton" class="modal-submit-button">Add Marks</button>
+        </form>
+    </div>
+</div>
+
+<!-- Generic Confirmation Modal -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmModal()">&times;</span>
+        <h3 id="confirmModalMessage"></h3>
+        <div class="confirm-buttons">
+            <button class="modal-submit-button" onclick="handleConfirmYes()">Yes</button>
+            <button class="modal-cancel-button" onclick="closeConfirmModal()">No</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Immediately hide all modals and the student table container when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('studentModal').style.display = 'none';
+        document.getElementById('confirmModal').style.display = 'none';
+        document.getElementById('studentTableContainer').style.display = 'none'; // Hide table container
+        document.getElementById('filterMessage').style.display = 'block'; // Show filter message
+    });
+</script>
+{# Load main scripts.js which now only handles student and general functions #}
+<script src="{% static 'js/scripts.js' %}"></script>
+{# Load general utility JS which includes confirm modal functions #}
+<script src="{% static 'js/utility.js' %}"></script>
+{% endblock %}

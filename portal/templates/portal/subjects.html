@@ -1,0 +1,109 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+
+{% block title %}Manage Subjects - Tailwebs{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="sidebar">
+        <div class="logo-sidebar">
+            tailwebs.
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{% url 'classes' %}"><i class="fas fa-chalkboard"></i> Classes</a></li>
+                <li><a href="{% url 'subjects' %}" class="active"><i class="fas fa-book-open"></i> Subjects</a></li>
+                <li><a href="{% url 'exam' %}"><i class="fas fa-graduation-cap"></i> Exam</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="navbar">
+            <div class="welcome-text">Welcome, {{ request.user.email }}</div>
+            <nav class="top-nav">
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content-area">
+            <div class="card subject-management-section">
+                <div class="card-header-with-button">
+                    <h3>Manage Subjects</h3>
+                    <div class="add-button-container">
+                        <button class="add-button" onclick="openSubjectModal('add')">Add New Subject</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr.no</th> {# Added Sr.no column #}
+                            <th>Subject Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectTable">
+                        <!-- Subjects will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+
+                {# Pagination Controls #}
+                <div class="pagination-controls">
+                    <button id="prevPage" onclick="goToSubjectPage(currentPageSubject - 1)" disabled>Previous</button>
+                    <span id="pageInfoSubject">Page 1 of 1</span>
+                    <button id="nextPage" onclick="goToSubjectPage(currentPageSubject + 1)" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Add/Edit Subject -->
+<div id="subjectModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeSubjectModal()">&times;</span>
+        <h3 id="subjectModalTitle">Add New Subject</h3>
+        <form id="subjectForm">
+            {% csrf_token %}
+            <input type="hidden" id="subjectId">
+            <div class="input-group">
+                <i class="fas fa-book"></i>
+                <input type="text" id="subjectName" placeholder="Subject Name (e.g., Math)" required>
+            </div>
+            <button type="submit" id="subjectSubmitButton" class="modal-submit-button">Add Subject</button>
+        </form>
+    </div>
+</div>
+
+<!-- Generic Confirmation Modal (needed on this page too) -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmModal()">&times;</span>
+        <h3 id="confirmModalMessage"></h3>
+        <div class="confirm-buttons">
+            <button class="modal-submit-button" onclick="handleConfirmYes()">Yes</button>
+            <button class="modal-cancel-button" onclick="closeConfirmModal()">No</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Immediately hide modals when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('subjectModal').style.display = 'none';
+        document.getElementById('confirmModal').style.display = 'none';
+    });
+</script>
+{# Load the specific JS for Subject management #}
+<script src="{% static 'js/subjects.js' %}"></script>
+{# Load general utility JS which includes confirm modal functions #}
+<script src="{% static 'js/utility.js' %}"></script>
+{% endblock %}

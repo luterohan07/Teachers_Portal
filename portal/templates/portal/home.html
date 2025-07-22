@@ -1,0 +1,65 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Tailwebs{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="sidebar">
+        <div class="logo-sidebar">
+            tailwebs.
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="{% url 'home' %}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{% url 'classes' %}"><i class="fas fa-chalkboard"></i> Classes</a></li>
+                <li><a href="{% url 'subjects' %}"><i class="fas fa-book-open"></i> Subjects</a></li>
+                <li><a href="{% url 'exam' %}"><i class="fas fa-graduation-cap"></i> Exam</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="navbar">
+            <div class="welcome-text">Welcome, {{ request.user.username }}</div>
+            <nav class="top-nav">
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content-area">
+            <div class="card">
+                <h3>Welcome to the Teacher Portal!</h3>
+                <p>Use the navigation on the left to manage your classes, subjects, and student exam marks.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generic Confirmation Modal (kept here for consistency across all main pages) -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmModal()">&times;</span>
+        <h3 id="confirmModalMessage"></h3>
+        <div class="confirm-buttons">
+            <button class="modal-submit-button" onclick="handleConfirmYes()">Yes</button>
+            <button class="modal-cancel-button" onclick="closeConfirmModal()">No</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Immediately hide modals when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('confirmModal').style.display = 'none';
+    });
+</script>
+{# Load general utility JS which includes confirm modal functions #}
+<script src="{% static 'js/utility.js' %}"></script>
+{% endblock %}
