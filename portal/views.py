@@ -161,10 +161,10 @@ def student_list_create(request):
                     student_class=student_class
                 )
                 # If found, update marks by SETTING new marks (not adding)
-                student_instance.marks = new_marks
+                student_instance.marks += new_marks
                 # Optionally, you can still cap at 100 if you want to prevent over 100 marks
-                if student_instance.marks > 100.0:
-                    student_instance.marks = 100.0
+                # if student_instance.marks > 100.0:
+                #     student_instance.marks = 100.0
                 student_instance.save()
                 serializer = StudentSerializer(student_instance)
                 return Response(serializer.data, status=status.HTTP_200_OK) # Return 200 OK for update

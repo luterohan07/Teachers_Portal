@@ -17,7 +17,7 @@ class StudentSerializer(serializers.ModelSerializer):
     subject_name = serializers.CharField(source='subject.name', read_only=True)
 
     # Change marks to FloatField to allow decimal values
-    marks = serializers.FloatField(min_value=0.0, max_value=100.0)
+    marks = serializers.FloatField(min_value=0.0)
 
     class Meta:
         model = Student
